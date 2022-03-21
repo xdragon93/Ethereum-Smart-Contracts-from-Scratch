@@ -4,7 +4,7 @@
   "description": "This repository accompanies the Udemy course - \"Ethereum Tutorial: Ethereum & Smart Contracts from Scratch\" by David Katz.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --watchAll"
   },
   "repository": {
     "type": "git",
