@@ -46,4 +46,4 @@ class Interpreter {
 
 const code = [PUSH, 2, PUSH, 3, ADD, STOP];
 const interpreter = new Interpreter();
-console.log(interpreter.runCode(code));
+interpreter.runCode(code);
