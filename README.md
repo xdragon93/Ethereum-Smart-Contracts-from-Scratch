@@ -21,3 +21,9 @@ Definitely take the course if you're interested in exploring the concepts behind
 #### Environment
 - Node v10.15.3 or higher
 - Tested on Mac OS
+
+#### Resources
+- Ethereum White Paper: [https://github.com/ethereum/wiki/wiki/White-Paper](https://github.com/ethereum/wiki/wiki/White-Paper)
+- Ethereum Yellow Paper: [https://ethereum.github.io/yellowpaper/paper.pdf](https://ethereum.github.io/yellowpaper/paper.pdf)
+- Ethereum Beige Paper: [https://github.com/chronaeon/beigepaper/blob/master/beigepaper.pdf](https://github.com/chronaeon/beigepaper/blob/master/beigepaper.pdf)
+- Ethereum Ethash: [https://github.com/ethereum/wiki/wiki/Ethash](https://github.com/ethereum/wiki/wiki/Ethash)
