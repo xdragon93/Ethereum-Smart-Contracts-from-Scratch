@@ -11,8 +11,7 @@ class Block {
     }
 
     static calculateBlockTargetHash({ lastBlock }) {
-        // const value = (MAX_HASH_VALUE / lastBlock.blockHeaders.difficulty).toString(16);
-        const value = (MAX_HASH_VALUE / 5).toString(16);
+        const value = (MAX_HASH_VALUE / lastBlock.blockHeaders.difficulty).toString(16);
 
         if (value.length > HASH_LENGTH) {
             return 'f'.repeat(HASH_LENGTH);
@@ -40,9 +39,6 @@ class Block {
             underTargetHash = keccakHash(header + nonce);
         } while (underTargetHash > target);
 
-        console.log('underTargetHash', underTargetHash);
-        console.log('target', target);
-
         return new this({
             blockHeaders: { ...truncatedBlockHeaders, nonce }
         });
@@ -54,10 +50,3 @@ class Block {
 }
 
 module.exports = Block;
-
-const block = Block.mineBlock({
-    lastBlock: Block.genesis(),
-    beneficiary: 'foo'
-});
-
-console.log('block', block);
