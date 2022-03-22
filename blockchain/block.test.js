@@ -41,4 +41,33 @@ describe('Block', () => {
             expect(underTargetHash < target).toBe(true);
         });
     });
+
+    describe('adjustDifficulty()', () => {
+        it('keeps the difficulty above 0', () => {
+            expect(
+                Block.adjustDifficulty({
+                    lastBlock: { blockHeaders: { difficulty: 0 } },
+                    timestamp: Date.now()
+                })
+            ).toEqual(1);
+        });
+
+        it('increases the difficulty for a quickly mined block', () => {
+            expect(
+                Block.adjustDifficulty({
+                    lastBlock: { blockHeaders: { difficulty: 5, timestamp: Date.now() - 10000 } },
+                    timestamp: Date.now()
+                })
+            ).toEqual(6);
+        });
+
+        it('decreases the difficulty for a slowly mined block', () => {
+            expect(
+                Block.adjustDifficulty({
+                    lastBlock: { blockHeaders: { difficulty: 5, timestamp: Date.now() - 15000 } },
+                    timestamp: Date.now()
+                })
+            ).toEqual(4);
+        });
+    });
 });
