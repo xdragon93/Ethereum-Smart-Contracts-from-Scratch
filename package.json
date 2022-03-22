@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Jaekson/Ethereum-Smart-Contracts-from-Scratch#readme",
   "dependencies": {
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "js-sha3": "^0.8.0"
   }
 }
