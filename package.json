@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon ./api",
+    "dev-peer": "nodemon ./api --peer",
     "start": "node ./api",
     "test": "jest --watchAll"
   },
