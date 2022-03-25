@@ -24,10 +24,10 @@ postTransact({})
         return postTransact({
             to: postTransactResponse.transaction.data.accountData.address,
             value: 20
-        }).then(postTransactResponse2 => {
-            console.log(
-                'postTransactResponse2 (Standard Transaction)',
-                postTransactResponse2
-            );
         });
+    }).then(postTransactResponse2 => {
+        console.log(
+            'postTransactResponse2 (Standard Transaction)',
+            postTransactResponse2
+        );
     });
