@@ -7,8 +7,6 @@ describe('Account', () => {
         account = new Account();
         data = { foo: 'foo' };
         signature = account.sign(data);
-
-        console.log('signature', signature);
     });
 
     describe('verifySignature()', () => {
