@@ -9,6 +9,9 @@
     "start": "node ./api",
     "test": "jest --watchAll"
   },
+  "jest": {
+      "testEnvironment": "node"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Jaekson/Ethereum-Smart-Contracts-from-Scratch.git"
