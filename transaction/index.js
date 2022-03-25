@@ -39,20 +39,47 @@ class Transaction {
             }
         });
     }
+
+    static validateStandardTransaction({ transaction }) {
+        return new Promise((resolve, reject) => {
+            const { id, from, signature } = transaction;
+            const transactionData = { ...transaction };
+            delete transactionData.signature;
+
+            if (!Account.verifySignature({
+                publicKey: from,
+                data: transactionData,
+                signature
+            })) {
+                return reject(new Error(`Transaction ${id} signature is invalid`));
+            }
+
+            return resolve();
+        });
+    }
+
+    static validateCreateAccountTransaction({ transaction }) {
+        return new Promise((resolve, reject) => {
+            const expectedAccountDataFields = Object.keys(new Account().toJSON());
+            const fields = Object.keys(transaction.data.accountData);
+
+            if (fields.length !== expectedAccountDataFields.length) {
+                return reject(new Error(
+                    `The transaction: ${transaction.id}, account data has an incorrect number of fields`
+                ));
+            }
+
+            fields.forEach(field => {
+                if (!expectedAccountDataFields.includes(field)) {
+                    return reject(new Error(
+                        `The field: ${field}, is unexpected for account data`
+                    ));
+                }
+            });
+
+            return resolve();
+        });
+    }
 }
 
 module.exports = Transaction;
-
-const account = new Account();
-const transaction1 = Transaction.createTransaction({
-    account
-});
-
-const transaction2 = Transaction.createTransaction({
-    account,
-    to: 'foo-recipient',
-    value: 50
-});
-
-console.log('Account creation transaction:', transaction1);
-console.log('Transact transaction:', transaction2);
