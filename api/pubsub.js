@@ -44,19 +44,17 @@ class PubSub {
                     case CHANNELS_MAP.BLOCK:
                         console.log('block message:', message);
 
-                        this.blockchain.addBlock({ block: parsedMessage })
-                            .then(() => console.log('New block accepted'))
-                            .catch(error => console.error('New block rejected:', error.message));
+                        this.blockchain.addBlock({
+                            block: parsedMessage,
+                            transactionQueue: this.transactionQueue
+                        })
+                        .then(() => console.log('New block accepted', parsedMessage))
+                        .catch(error => console.error('New block rejected:', error.message));
                         break;
                     case CHANNELS_MAP.TRANSACTION:
                         console.log(`Received transaction: ${parsedMessage.id}`);
 
                         this.transactionQueue.add(new Transaction(parsedMessage));
-
-                        console.log(
-                            'this.transactionQueue.getTransactionSeries()',
-                            this.transactionQueue.getTransactionSeries()
-                        );
 
                         break;
                     default:
