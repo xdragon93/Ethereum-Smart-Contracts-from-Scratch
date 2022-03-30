@@ -1,6 +1,7 @@
 const { GENESIS_DATA, MINE_RATE } = require('../config');
 const { keccakHash } = require('../util');
 const Transaction = require('../transaction');
+const Trie = require('../store/trie');
 
 const HASH_LENGTH = 64;
 const MAX_HASH_VALUE = parseInt('f'.repeat(HASH_LENGTH), 16);
@@ -43,6 +44,8 @@ class Block {
         stateRoot
     }) {
         const target = this.calculateBlockTargetHash({ lastBlock });
+        const transactionsTrie = Trie.buildTrie({ items: transactionSeries });
+
         let timestamp, truncatedBlockHeaders, header, nonce, underTargetHash;
 
         do {
@@ -53,10 +56,7 @@ class Block {
                 difficulty: Block.adjustDifficulty({ lastBlock, timestamp }),
                 number: lastBlock.blockHeaders.number + 1,
                 timestamp,
-                /**
-                 * NOTE: the `transactionsRoot` will be refactored once Tries are implemented.
-                 */
-                transactionsRoot: keccakHash(transactionSeries),
+                transactionsRoot: transactionsTrie.rootHash,
                 stateRoot
             };
             header = keccakHash(truncatedBlockHeaders);
@@ -93,6 +93,17 @@ class Block {
 
             if (Math.abs(lastBlock.blockHeaders.difficulty - block.blockHeaders.difficulty) > 1) {
                 return reject(new Error('The difficulty must only adjust by 1'));
+            }
+
+            const rebuiltTransactionsTrie = Trie.buildTrie({
+                items: block.transactionSeries
+            });
+
+            if (rebuiltTransactionsTrie.rootHash !== block.blockHeaders.transactionsRoot) {
+                return reject(new Error(
+                    `The rebuilt transactions root does not match the block's ` +
+                    `transactions root: ${block.blockHeaders.transactionsRoot}`
+                ));
             }
 
             const target = Block.calculateBlockTargetHash({ lastBlock });
