@@ -40,18 +40,40 @@ class Transaction {
         });
     }
 
-    static validateStandardTransaction({ transaction }) {
+    static validateStandardTransaction({ transaction, state }) {
         return new Promise((resolve, reject) => {
-            const { id, from, signature } = transaction;
+            const { id, from, to, value, signature } = transaction;
             const transactionData = { ...transaction };
             delete transactionData.signature;
 
-            if (!Account.verifySignature({
-                publicKey: from,
-                data: transactionData,
-                signature
-            })) {
-                return reject(new Error(`Transaction ${id} signature is invalid`));
+            try {
+                if (!Account.verifySignature({
+                    publicKey: from,
+                    data: transactionData,
+                    signature
+                })) {
+                    return reject(new Error(
+                        `Transaction ${id} signature is invalid`
+                    ));
+                }
+
+                const fromBalance = state.getAccount({ address: from }).balance;
+
+                if (value > fromBalance) {
+                    return reject(new Error(
+                        `Transaction value: ${value} exceeds balance: ${fromBalance}`
+                    ));
+                }
+
+                const toAccount = state.getAccount({ address: to });
+
+                if (!toAccount) {
+                    return reject(new Error(
+                        `The to field: ${to} does not exist`
+                    ));
+                }
+            } catch (error) {
+                return reject(error);
             }
 
             return resolve();
@@ -60,22 +82,49 @@ class Transaction {
 
     static validateCreateAccountTransaction({ transaction }) {
         return new Promise((resolve, reject) => {
-            const expectedAccountDataFields = Object.keys(new Account().toJSON());
-            const fields = Object.keys(transaction.data.accountData);
+            try {
+                const expectedAccountDataFields = Object.keys(new Account().toJSON());
+                const fields = Object.keys(transaction.data.accountData);
 
-            if (fields.length !== expectedAccountDataFields.length) {
-                return reject(new Error(
-                    `The transaction: ${transaction.id}, account data has an incorrect number of fields`
-                ));
-            }
-
-            fields.forEach(field => {
-                if (!expectedAccountDataFields.includes(field)) {
+                if (fields.length !== expectedAccountDataFields.length) {
                     return reject(new Error(
-                        `The field: ${field}, is unexpected for account data`
+                        `The transaction: ${transaction.id}, account data has an incorrect number of fields`
                     ));
                 }
-            });
+
+                fields.forEach(field => {
+                    if (!expectedAccountDataFields.includes(field)) {
+                        return reject(new Error(
+                            `The field: ${field}, is unexpected for account data`
+                        ));
+                    }
+                });
+            } catch (error) {
+                return reject(error);
+            }
+
+            return resolve();
+        });
+    }
+
+    static validateTransactionSeries({ transactionSeries, state }) {
+        return new Promise(async (resolve, reject) => {
+            for (let transaction of transactionSeries) {
+                try {
+                    switch (transaction.data.type) {
+                        case TRANSACTION_TYPE_MAP.CREATE_ACCOUNT:
+                            await Transaction.validateCreateAccountTransaction({ transaction });
+                            break;
+                        case TRANSACTION_TYPE_MAP.TRANSACT:
+                            await Transaction.validateStandardTransaction({ transaction, state });
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (error) {
+                    return reject(error);
+                }
+            }
 
             return resolve();
         });
