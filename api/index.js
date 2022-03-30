@@ -13,7 +13,7 @@ const app = express();
 app.use(bodyParser.json());
 
 const state = new State();
-const blockchain = new Blockchain();
+const blockchain = new Blockchain({ state });
 const transactionQueue = new TransactionQueue();
 const pubsub = new PubSub({ blockchain, transactionQueue });
 const account = new Account();

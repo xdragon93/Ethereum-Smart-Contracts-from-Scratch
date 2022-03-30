@@ -1,8 +1,9 @@
 const Block = require('./block');
 
 class Blockchain {
-    constructor() {
+    constructor({ state }) {
         this.chain = [Block.genesis()];
+        this.state = state;
     }
 
     addBlock({ block, transactionQueue }) {
@@ -12,6 +13,8 @@ class Blockchain {
                 block
             }).then(() => {
                 this.chain.push(block);
+
+                Block.runBlock({ block, state: this.state });
 
                 transactionQueue.clearBlockTransactions({
                     transactionSeries: block.transactionSeries
@@ -30,6 +33,7 @@ class Blockchain {
 
                 try {
                     await Block.validateBlock({ lastBlock, block });
+                    Block.runBlock({ block, state: this.state });
                 } catch (error) {
                     return reject(error);
                 }
