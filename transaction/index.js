@@ -190,9 +190,12 @@ class Transaction {
 
     static runCreateAccountTransaction({ transaction, state }) {
         const { accountData } = transaction.data;
-        const { address } = accountData;
+        const { address, codeHash } = accountData;
 
-        state.putAccount({ address, accountData });
+        state.putAccount({
+            address: codeHash || address,
+            accountData
+        });
     }
 
     static runMiningRewardTransaction({ transaction, state }) {
