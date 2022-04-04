@@ -5,12 +5,12 @@ const { STOP, ADD, PUSH } = OPCODE_MAP;
 
 const BASE_URL = 'http://localhost:3000';
 
-const postTransact = ({ code, to, value }) => {
+const postTransact = ({ code, to, value, gasLimit }) => {
     return new Promise((resolve, reject) => {
         request(`${BASE_URL}/account/transact`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, to, value })
+            body: JSON.stringify({ code, to, value, gasLimit })
         }, (error, response, body) => {
             return resolve(JSON.parse(body));
         });
@@ -78,7 +78,8 @@ postTransact({})
 
         return postTransact({
             to: smartContractAccountData.codeHash,
-            value: 0
+            value: 0,
+            gasLimit: 100
         });
     }).then(postTransactResponse4 => {
         console.log(
@@ -97,4 +98,8 @@ postTransact({})
         return getAccountBalance({ address: toAccountData.address });
     }).then(getAccountBalanceResponse2 => {
         console.log('getAccountBalanceResponse2', getAccountBalanceResponse2);
+
+        return getAccountBalance({ address: smartContractAccountData.codeHash });
+    }).then(getAccountBalanceResponse3 => {
+        console.log('getAccountBalanceResponse3', getAccountBalanceResponse3);
     });
