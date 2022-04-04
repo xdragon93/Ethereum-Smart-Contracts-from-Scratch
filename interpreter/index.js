@@ -11,6 +11,8 @@ const AND = 'AND';
 const OR = 'OR';
 const JUMP = 'JUMP';
 const JUMPI = 'JUMPI';
+const STORE = 'STORE';
+const LOAD = 'LOAD';
 
 const OPCODE_MAP = {
     STOP,
@@ -25,7 +27,9 @@ const OPCODE_MAP = {
     AND,
     OR,
     JUMP,
-    JUMPI
+    JUMPI,
+    STORE,
+    LOAD
 };
 
 const OPCODE_GAS_MAP = {
@@ -41,20 +45,23 @@ const OPCODE_GAS_MAP = {
     AND: 1,
     OR: 1,
     JUMP: 2,
-    JUMPI: 2
+    JUMPI: 2,
+    STORE: 5,
+    LOAD: 5
 };
 
 const EXECUTION_COMPLETE = 'Execution complete';
 const EXECUTION_LIMIT = 10000;
 
 class Interpreter {
-    constructor() {
+    constructor({ storageTrie } = {}) {
         this.state = {
             programCounter: 0,
             stack: [],
             code: [],
             executionCount: 0
         };
+        this.storageTrie = storageTrie;
     }
 
     jump() {
@@ -89,6 +96,9 @@ class Interpreter {
 
             gasUsed += OPCODE_GAS_MAP[opCode];
 
+            let key;
+            let value;
+
             try {
                 switch (opCode) {
                     case STOP:
@@ -100,7 +110,7 @@ class Interpreter {
                             throw new Error(`The 'PUSH' instruction cannot be last.`);
                         }
 
-                        const value = this.state.code[this.state.programCounter];
+                        value = this.state.code[this.state.programCounter];
                         this.state.stack.push(value);
                         break;
                     case ADD:
@@ -139,6 +149,20 @@ class Interpreter {
                             this.jump();
                         }
                         break;
+                    case STORE:
+                        key = this.state.stack.pop();
+                        value = this.state.stack.pop();
+
+                        this.storageTrie.put({ key, value });
+
+                        break;
+                    case LOAD:
+                        key = this.state.stack.pop();
+                        value = this.storageTrie.get({ key });
+
+                        this.state.stack.push(value);
+
+                        break;
                     default:
                         break;
                 }
@@ -160,68 +184,3 @@ class Interpreter {
 
 Interpreter.OPCODE_MAP = OPCODE_MAP;
 module.exports = Interpreter;
-
-// let code = [PUSH, 2, PUSH, 3, ADD, STOP];
-// let result = new Interpreter().runCode(code);
-// console.log('Result of 3 ADD 2:', result);
-
-// code = [PUSH, 2, PUSH, 3, SUB, STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of 3 SUB 2:', result);
-
-// code = [PUSH, 2, PUSH, 3, MUL, STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of 3 MUL 2:', result);
-
-// code = [PUSH, 2, PUSH, 3, DIV, STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of 3 DIV 2:', result);
-
-// code = [PUSH, 2, PUSH, 3, LT, STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of 3 LT 2:', result);
-
-// code = [PUSH, 2, PUSH, 3, GT, STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of 3 GT 2:', result);
-
-// code = [PUSH, 2, PUSH, 2, EQ, STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of 2 EQ 2:', result);
-
-// code = [PUSH, 1, PUSH, 0, AND, STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of 0 AND 1:', result);
-
-// code = [PUSH, 1, PUSH, 0, OR, STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of 0 OR 1:', result);
-
-// code = [PUSH, 6, JUMP, PUSH, 0, JUMP, PUSH, 'Jump successful', STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of JUMP:', result);
-
-// code = [PUSH, 8, PUSH, 1, JUMPI, PUSH, 0, JUMP, PUSH, 'Jump successful', STOP];
-// result = new Interpreter().runCode(code);
-// console.log('Result of JUMPI:', result);
-
-// code = [PUSH, 99, JUMP, PUSH, 0, JUMP, PUSH, 'Jump successful', STOP];
-// try {
-//     result = new Interpreter().runCode(code);
-// } catch (error) {
-//     console.log('Invalid destination error:', error.message);
-// }
-
-// code = [PUSH, 0, PUSH];
-// try {
-//     result = new Interpreter().runCode(code);
-// } catch (error) {
-//     console.log('Expected invalid PUSH error:', error.message);
-// }
-
-// code = [PUSH, 0, JUMP, STOP];
-// try {
-//     result = new Interpreter().runCode(code);
-// } catch (error) {
-//     console.log('Expected invalid execution error:', error.message);
-// }
