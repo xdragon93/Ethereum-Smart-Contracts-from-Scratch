@@ -27,7 +27,7 @@
   "dependencies": {
     "body-parser": "^1.19.2",
     "elliptic": "^6.5.4",
-    "express": "^4.17.3",
+    "express": "^4.19.2",
     "jest": "^27.5.1",
     "js-sha3": "^0.8.0",
     "lodash": "^4.17.21",
